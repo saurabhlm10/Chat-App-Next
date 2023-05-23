@@ -20,7 +20,7 @@ export const pusherClient = new PusherClient(
 let heartbeatInterval: ReturnType<typeof setInterval>;
 
 export const heartbeatStarter = () => {
-  heartbeatInterval = setInterval(heartbeat, 5000);
+  heartbeatInterval = setInterval(heartbeat, 1000);
 };
 
 export const heartbeatStopper = () => {
