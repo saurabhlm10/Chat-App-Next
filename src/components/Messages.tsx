@@ -1,6 +1,6 @@
 "use client";
 
-import { pusherClient } from "@/lib/pusher";
+import { heartbeatStarter, pusherClient } from "@/lib/pusher";
 import { cn, toPusherKey } from "@/lib/utils";
 import { Message } from "@/lib/validations/message";
 import { format } from "date-fns";
@@ -27,6 +27,8 @@ const Messages: FC<MessagesProps> = ({
   const scrollDownRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
+    heartbeatStarter();
+    pusherClient.subscribe("heartbeat-channel");
     pusherClient.subscribe(toPusherKey(`chat:${chatId}`));
 
     const messageHandler = (message: Message) => {
@@ -34,17 +36,21 @@ const Messages: FC<MessagesProps> = ({
       setMessages((prev) => [message, ...prev]);
     };
 
+    const heartbeatHandler = () => {};
+
+    pusherClient.bind("heartbeat-event", heartbeatHandler);
     pusherClient.bind("incoming-message", messageHandler);
 
     return () => {
       pusherClient.unsubscribe(toPusherKey(`chat:${chatId}`));
+      pusherClient.unsubscribe("heartbeat-channel");
 
       pusherClient.unbind("incoming-message", messageHandler);
+      pusherClient.unbind("heartbeat-event", heartbeatHandler);
     };
   }, [chatId]);
 
   console.log("RENDERED MESSAGES:", messages);
-  
 
   const formatTimestamp = (timestamp: number) => {
     return format(timestamp, "HH:mm");
