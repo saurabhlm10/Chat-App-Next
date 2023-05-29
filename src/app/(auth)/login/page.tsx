@@ -11,7 +11,6 @@ const Page: FC = () => {
   async function loginWithGoogle() {
     setIsLoading(true)
     try {
-      // throw new Error('HELLO')
       await signIn('google')
     } catch (error) {
       toast.error('Something went wrong')
